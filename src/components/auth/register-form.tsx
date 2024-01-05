@@ -2,7 +2,7 @@
 import React, { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { loginSchema } from "@/lib/form-schema";
+import { registerSchema } from "@/lib/form-schema";
 import { z } from "zod";
 import FormError from "@/components/form-error";
 import FormSuccess from "@/components//form-success";
@@ -17,41 +17,62 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { login } from "@/actions/login";
+import { register } from "@/actions/register";
+import { notificationToast } from "@/lib/toast";
 
-interface LoginFormProps {}
+interface RegisterFormProps {}
 
-const LoginForm = (props: LoginFormProps) => {
+const RegisterForm = (props: RegisterFormProps) => {
   const [success, setSuccess] = useState<string | undefined>("");
   const [error, setError] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof loginSchema>) {
+  function onSubmit(values: z.infer<typeof registerSchema>) {
     setSuccess("");
     setError("");
     startTransition(() => {
-      login(values).then((data) => {
-        setSuccess(data.success);
-        setError(data.error);
+      register(values).then((data) => {
+        if (data.type === "error") {
+          notificationToast(data.message, "error");
+          return;
+        }
+        notificationToast(data.message, "action");
       });
     });
   }
   return (
     <CardWrapper
-      headerLabel="Welcome back"
-      backButtonLabel="Dont have an account"
-      backButtonHref="/auth/register"
+      headerLabel="Create an account"
+      backButtonLabel="Already have an account?"
+      backButtonHref="/auth/login"
       showSocial
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="Fullname"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="email"
@@ -90,7 +111,7 @@ const LoginForm = (props: LoginFormProps) => {
           <FormError message={error} />
           <FormSuccess message={success} />
           <Button disabled={isPending} type="submit" className="w-full">
-            Login
+            Create an account
           </Button>
         </form>
       </Form>
@@ -98,4 +119,4 @@ const LoginForm = (props: LoginFormProps) => {
   );
 };
 
-export default LoginForm;
+export default RegisterForm;
