@@ -38,8 +38,7 @@ const LoginForm = (props: LoginFormProps) => {
     setError("");
     startTransition(() => {
       login(values).then((data) => {
-        setSuccess(data.success);
-        setError(data.error);
+        setError(data?.error);
       });
     });
   }

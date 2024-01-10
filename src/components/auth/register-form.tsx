@@ -43,7 +43,7 @@ const RegisterForm = (props: RegisterFormProps) => {
           notificationToast(data.message, "error");
           return;
         }
-        notificationToast(data.message, "action");
+        notificationToast(data.message, "success");
       });
     });
   }
