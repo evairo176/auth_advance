@@ -18,10 +18,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { login } from "@/actions/login";
+import { useSearchParams } from "next/navigation";
 
 interface LoginFormProps {}
 
 const LoginForm = (props: LoginFormProps) => {
+  const searchParams = useSearchParams();
+  const urlError =
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "Email already in use with different provider!"
+      : "";
+
   const [success, setSuccess] = useState<string | undefined>("");
   const [error, setError] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
@@ -86,7 +93,7 @@ const LoginForm = (props: LoginFormProps) => {
               </FormItem>
             )}
           />
-          <FormError message={error} />
+          <FormError message={error || urlError} />
           <FormSuccess message={success} />
           <Button disabled={isPending} type="submit" className="w-full">
             Login
