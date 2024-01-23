@@ -44,3 +44,12 @@ model User {
   accounts      Account[]
   role          UserRole @default(USER)
 }
+
+model VerificationToken {
+  id            String    @id @default(cuid())
+  email         String
+  token         String      @unique
+  expired       DateTime
+
+  @@unique([email,token])
+}
